@@ -1,4 +1,4 @@
-## BiodataList Managment Backend
+## BiodataList Management Backend
 
 
 ## Requirement 
