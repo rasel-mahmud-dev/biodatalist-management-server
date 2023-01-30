@@ -2,6 +2,7 @@ import {Request, Response, NextFunction} from "express";
 import User from "../models/User";
 import UserType from "../types/interface/UserType";
 import {createHashPassword} from "../services/bcrypt";
+import {generateToken} from "../services/jwt";
 
 export const login = async (req: Request, res: Response, next: NextFunction) =>{
 
@@ -58,8 +59,20 @@ export const registration = async (req: Request, res: Response, next: NextFuncti
         newUser.password = hash
 
         let response = await newUser.save()
+        if(!response){
+            return res.status(500).json({message: "User registration fail"})
+        }
+
+        let token = await generateToken(response._id as string, response.email, response.role)
 
         // send response to client
+        res.status(201).json({
+            message: "User Registered",
+            user: {
+                ...response,
+                token: token
+            }
+        })
 
 
     } catch (ex){
