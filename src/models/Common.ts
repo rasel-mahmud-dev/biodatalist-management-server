@@ -57,7 +57,7 @@ class Common {
             let {collectionName} = this
             try {
                 let collection = await Common.getCollection(collectionName)
-                let doc = await collection.find(filter ? filter: {})
+                let doc = await collection.find(filter ? filter: {}).toArray()
                 resolve(doc as T)
             } catch (ex) {
                 reject(ex as T)
