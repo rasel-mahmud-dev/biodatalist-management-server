@@ -1,12 +1,14 @@
 import UserType from "../types/interface/UserType";
 import {ObjectId} from "mongodb";
 import Common from "./Common";
+import {Role} from "../types";
 
 
 class User extends Common implements UserType{
     _id?: string | ObjectId;
     email: string;
     password: string;
+    role: Role;
     username: string;
     avatar?: string;
     createdAt?: Date | string;
@@ -19,6 +21,7 @@ class User extends Common implements UserType{
         this.email = data.email
         this.avatar = data.avatar
         this.password = data.password
+        this.role = data.role
         this.username = data.username
         this.createdAt = new Date()
     }

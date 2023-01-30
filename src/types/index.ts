@@ -5,7 +5,7 @@ export enum Role{
     ADMIN  = "ADMIN"
 }
 
-interface JWT_PAYLOAD{
+export interface JWT_PAYLOAD{
     userId: string,
     email: string
     role: Role
