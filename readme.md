@@ -40,7 +40,7 @@
 ### Auth Routes
 - [GET] api/auth/login
 - [GET] api/auth/registration
-- [GET] api/auth/fetch-current-user
+- [GET] api/auth/fetch-current-auth
 
 ### Biodata Rotues
 - [GET] api/biodata  => get all public biodatas

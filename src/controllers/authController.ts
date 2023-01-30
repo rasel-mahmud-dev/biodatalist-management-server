@@ -4,11 +4,13 @@ import UserType from "../types/interface/UserType";
 import {comparePassword, createHashPassword} from "../services/bcrypt";
 import {generateToken} from "../services/jwt";
 import {Role} from "../types";
+import {ObjectId} from "mongodb";
 
 export const login = async (req: Request, res: Response, next: NextFunction) =>{
 
     try{
-        const user = await User.findOne<UserType | null>({email: req.body.email})
+        let {password, email} = req.body
+        const user = await User.findOne<UserType | null>({email})
 
         // check if user exist or not
         // if not then send error message
@@ -16,7 +18,9 @@ export const login = async (req: Request, res: Response, next: NextFunction) =>{
 
 
         // now check password
-        let isPasswordMatch = await comparePassword(user.password, user.password)
+        let isPasswordMatch = await comparePassword(password, user.password)
+       
+
         if(!isPasswordMatch){
             return res.status(409).json({message: "Your password is wrong"})
         }
@@ -39,8 +43,6 @@ export const login = async (req: Request, res: Response, next: NextFunction) =>{
     }
 
 }
-
-
 
 export const registration = async (req: Request, res: Response, next: NextFunction) =>{
 
@@ -80,6 +82,7 @@ export const registration = async (req: Request, res: Response, next: NextFuncti
             message: "User Registered",
             user: {
                 ...response,
+                password: "",
                 token: token
             }
         })
@@ -90,3 +93,34 @@ export const registration = async (req: Request, res: Response, next: NextFuncti
     }
 
 }
+
+
+export const fetchCurrentAuth = async (req: Request, res: Response, next: NextFunction) =>{
+
+    try{
+        if(!req.user){
+            return res.status(409).json({message: "Please login first"})
+        }
+
+        const user = await User.findOne<UserType | null>({_id: new ObjectId(req.user._id)})
+
+        // check if user exist or not
+        // if not then send error message
+        if(!user) return res.status(404).json({message: "This user not registered yet"})
+
+
+        // send response to client
+        res.status(200).json({
+            message: "User Logged",
+            user: {
+                ...user,
+                password: ""
+            }
+        })
+
+
+    } catch (ex){
+        next(ex)
+    }
+}
+

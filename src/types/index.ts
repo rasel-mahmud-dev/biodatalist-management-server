@@ -6,7 +6,7 @@ export enum Role{
 }
 
 export interface JWT_PAYLOAD{
-    userId: string,
+    _id: string,
     email: string
     role: Role
 }
