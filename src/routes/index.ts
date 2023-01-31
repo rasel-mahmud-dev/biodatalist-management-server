@@ -3,10 +3,10 @@ const router = Router()
 
 import authRoute from "./authRoute";
 import biodataRoute from "./biodataRoute";
-import {auth} from "../middlewares";
+
 
 router.use("/api", authRoute)
-router.use("/api", auth, biodataRoute)
+router.use("/api", biodataRoute)
 
 
 export default router

@@ -79,20 +79,20 @@ export const udpateBiodata = async (req: Request, res: Response, next: NextFunct
         }
 
         // all value set before checking because multistep form fields will be sent
-        if(biodataType) biodata.biodataType = biodataType
-        if(birthDay) biodata.birthDay = birthDay
-        if(bloodGroup) biodata.bloodGroup = bloodGroup
-        if(phone) biodata.phone = phone
-        if(fatherName) biodata.fatherName = fatherName
-        if(isFatherAlive) biodata.isFatherAlive = isFatherAlive
-        if(educationMethod) biodata.educationMethod = educationMethod
-        if(gender) biodata.gender = gender
-        if(maritalStatus) biodata.maritalStatus = maritalStatus
-        if(height) biodata.height = height
-        if(occupation) biodata.occupation = occupation
-        if(nationality) biodata.nationality = nationality
-        if(permanentAddress) biodata.permanentAddress = permanentAddress
-        if(presentAddress) biodata.presentAddress = presentAddress
+        if (biodataType) biodata.biodataType = biodataType
+        if (birthDay) biodata.birthDay = birthDay
+        if (bloodGroup) biodata.bloodGroup = bloodGroup
+        if (phone) biodata.phone = phone
+        if (fatherName) biodata.fatherName = fatherName
+        if (isFatherAlive) biodata.isFatherAlive = isFatherAlive
+        if (educationMethod) biodata.educationMethod = educationMethod
+        if (gender) biodata.gender = gender
+        if (maritalStatus) biodata.maritalStatus = maritalStatus
+        if (height) biodata.height = height
+        if (occupation) biodata.occupation = occupation
+        if (nationality) biodata.nationality = nationality
+        if (permanentAddress) biodata.permanentAddress = permanentAddress
+        if (presentAddress) biodata.presentAddress = presentAddress
 
         // if new bio data then insert current date time
         const userBiodata = await Biodata.findOne({userId: new ObjectId(req.authUser._id)})
@@ -120,34 +120,49 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
 
     try {
         const {
+            biodataNo,
             address,
             gender,
             maritalStatus,
             createdAt,
-            dateOfBrith,
             height,
             occupation,
             nationality,
-            divisions,
-            districts,
-            upazilas
         } = req.body
 
         type FilterDataType = {
             maritalStatus?: string
+            occupation?: string
+            _id?: string | ObjectId
         }
 
         let filter: FilterDataType = {
-            maritalStatus: ""
+
         }
 
         if (maritalStatus) {
             filter.maritalStatus = maritalStatus
         }
+        if (occupation) {
+            filter.occupation = occupation
+        }
 
+
+        if(biodataNo){
+            filter._id = new ObjectId(biodataNo)
+        }
 
         const biodata = await Biodata.aggregate<BiodataType>([
-            {$match: filter}
+            {$match: filter},
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "user"
+                }
+            },
+            { $unwind: {path: "$user"} }
         ])
 
         // send response to client

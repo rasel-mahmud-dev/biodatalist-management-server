@@ -118,7 +118,7 @@ class Common {
             let {collectionName} = this
             try {
                 let collection = await Common.getCollection(collectionName)
-                let doc = await collection.aggregate(pipeline)
+                let doc = await collection.aggregate(pipeline).toArray()
                 resolve(doc as T)
             } catch (ex) {
                 reject(ex as T)
