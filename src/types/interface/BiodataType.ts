@@ -6,7 +6,6 @@ interface BiodataType {
     address: string
     gender: string
     maritalStatus: boolean
-    createdAt: Date
     dateOfBrith: Date
     height: number
     occupation: string
@@ -14,6 +13,10 @@ interface BiodataType {
     divisions: string,
     districts: string,
     upazilas: string
+    biodataType: string,
+    birthDay: string,
+    bloodGroup: string,
+    createdAt?: Date
 }
 
 export default BiodataType

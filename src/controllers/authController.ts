@@ -33,6 +33,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) =>{
             message: "User Logged",
             user: {
                 ...user,
+                password: "",
                 token: token
             }
         })

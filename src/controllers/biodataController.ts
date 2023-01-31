@@ -4,10 +4,24 @@ import BiodataType from "../types/interface/BiodataType";
 import {ObjectId} from "mongodb";
 
 
+export const getCurrentUserBiodata = async (req: Request, res: Response, next: NextFunction) => {
 
-export const getAllBiodata = async (req: Request, res: Response, next: NextFunction) =>{
+    try {
 
-    try{
+        const biodata = await Biodata.findOne<BiodataType>({userId: new ObjectId(req.user._id)})
+        // send response to client
+        res.status(200).json(biodata)
+
+    } catch (ex) {
+        next(ex)
+    }
+
+}
+
+
+export const getAllBiodata = async (req: Request, res: Response, next: NextFunction) => {
+
+    try {
 
         const biodata = await Biodata.find<BiodataType>()
 
@@ -15,15 +29,76 @@ export const getAllBiodata = async (req: Request, res: Response, next: NextFunct
         res.status(200).json(biodata)
 
 
-    } catch (ex){
+    } catch (ex) {
         next(ex)
     }
 
 }
 
-export const createBiodata = async (req: Request, res: Response, next: NextFunction) =>{
+export const udpateBiodata = async (req: Request, res: Response, next: NextFunction) => {
 
-    try{
+    try {
+        const {
+            address,
+            gender,
+            dateOfBrith,
+            occupation,
+            divisions,
+            districts,
+            upazilas,
+            biodataType,
+            birthDay,
+            bloodGroup,
+            height,
+            maritalStatus,
+            nationality,
+        } = req.body
+
+
+        // if not exist biodata then create new one
+        let biodata: BiodataType = {
+            biodataType,
+            birthDay,
+            bloodGroup,
+            address,
+            gender,
+            maritalStatus,
+            userId: new ObjectId(req.user._id),
+            dateOfBrith,
+            height,
+            occupation,
+            nationality,
+            divisions,
+            districts,
+            upazilas,
+        }
+
+        // if new bio data then insert current date time
+        const userBiodata = await Biodata.findOne({userId: new ObjectId(req.user._id)})
+        if (!userBiodata) {
+            biodata.createdAt = new Date()
+        }
+
+        // update or insert bio data
+        let doc = await Biodata.findAndUpdate({userId: new ObjectId(req.user._id)}, {
+            $set: biodata,
+        }, {upsert: true})
+
+        if (doc.ok) {
+            res.status(201).json({message: "bio data updated"})
+        }
+
+
+    } catch (ex) {
+        next(ex)
+    }
+
+}
+
+
+export const filterBiodata = async (req: Request, res: Response, next: NextFunction) => {
+
+    try {
         const {
             address,
             gender,
@@ -35,30 +110,30 @@ export const createBiodata = async (req: Request, res: Response, next: NextFunct
             nationality,
             divisions,
             districts,
-            upazilas,
+            upazilas
         } = req.body
 
+        type FilterDataType = {
+            maritalStatus?: string
+        }
 
-        let newBiodata = new Biodata({
-            address,
-            gender,
-            maritalStatus,
-            userId: new ObjectId(req.user._id),
-            createdAt,
-            dateOfBrith,
-            height,
-            occupation,
-            nationality,
-            divisions,
-            districts,
-            upazilas,
-        })
+        let filter: FilterDataType = {
+            maritalStatus: ""
+        }
 
-       let response = await newBiodata.save()
-        res.status(201).send(response)
+        if (maritalStatus) {
+            filter.maritalStatus = maritalStatus
+        }
 
-    } catch (ex){
+
+        const biodata = await Biodata.aggregate<BiodataType>([
+            {$match: filter}
+        ])
+
+        // send response to client
+        res.status(200).json(biodata)
+
+    } catch (ex) {
         next(ex)
     }
-
 }

@@ -1,5 +1,14 @@
 import {databaseConnect} from "../services/mongodb";
-import {Collection, Db, Document, Filter} from "mongodb";
+import {
+    Collection,
+    Db,
+    Document,
+    Filter,
+    FindOneAndUpdateOptions,
+    ModifyResult,
+    UpdateFilter,
+    UpdateOptions
+} from "mongodb";
 
 class Common {
 
@@ -71,6 +80,32 @@ class Common {
             try {
                 let collection = await Common.getCollection(collectionName)
                 let doc = await collection.findOne(filter)
+                resolve(doc as T)
+            } catch (ex) {
+                reject(ex as T)
+            }
+        })
+    }
+
+    static findAndUpdate(filter: Filter<Document>, update: UpdateFilter<Document>, options: FindOneAndUpdateOptions) {
+        return new Promise<ModifyResult>(async (resolve, reject) => {
+            let {collectionName} = this
+            try {
+                let collection = await Common.getCollection(collectionName)
+                let doc = await collection.findOneAndUpdate(filter, update, options)
+                resolve(doc )
+            } catch (ex) {
+                reject(ex)
+            }
+        })
+    }
+
+    static aggregate<T>(pipeline: Document[]) {
+        return new Promise<T>(async (resolve, reject) => {
+            let {collectionName} = this
+            try {
+                let collection = await Common.getCollection(collectionName)
+                let doc = await collection.aggregate(pipeline)
                 resolve(doc as T)
             } catch (ex) {
                 reject(ex as T)
