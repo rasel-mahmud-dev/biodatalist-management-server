@@ -5,12 +5,13 @@ import {Role} from "../types";
 
 export async function auth(req: Request, res: Response, next: NextFunction) {
     let token = req.headers["authorization"] as string
+
     if (!token) {
         return next("Please login first")
     }
 
     try {
-        req.user = await parseToken(token)
+        req.authUser = await parseToken(token)
         next()
 
     } catch (ex) {

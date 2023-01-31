@@ -5,11 +5,33 @@ import {comparePassword, createHashPassword} from "../services/bcrypt";
 import {generateToken} from "../services/jwt";
 import {Role} from "../types";
 import {ObjectId} from "mongodb";
+import Joi from "joi";
 
+
+// login handler
 export const login = async (req: Request, res: Response, next: NextFunction) => {
 
+
+    const schema = Joi.object({
+        email: Joi.string()
+            .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
+            .min(3)
+            .max(50)
+            .required(),
+        password: Joi.string().min(3).max(100).required(),
+    })
+
     try {
+
         let {password, email} = req.body
+
+        let {error} = schema.validate({email, password});
+        if(error?.message){
+            return res.status(409).json({message: error.message})
+        }
+
+
+
         const user = await User.findOne<UserType | null>({email})
 
         // check if user exist or not
@@ -45,10 +67,28 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
 }
 
+
+
+// create user account
 export const registration = async (req: Request, res: Response, next: NextFunction) => {
+    const schema = Joi.object({
+        username: Joi.string().max(50).required(),
+        email: Joi.string()
+            .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } })
+            .min(3)
+            .max(50)
+            .required(),
+        password: Joi.string().min(3).max(100).required(),
+    })
+
 
     try {
         const {email, password, username, avatar} = req.body
+
+        let {error} = schema.validate({email, password, username});
+        if(error?.message){
+            return res.status(409).json({message: error.message})
+        }
 
         const user = await User.findOne<UserType>({email})
 
@@ -96,12 +136,15 @@ export const registration = async (req: Request, res: Response, next: NextFuncti
 }
 
 
+
+// fetch current logged user that has a valid token
 export const fetchCurrentAuth = async (req: Request, res: Response, next: NextFunction) => {
 
     try {
-        if (!req.user) {
+        if (!req.authUser) {
             return res.status(409).json({message: "Please login first"})
         }
+
 
         const user = await User.findOne<UserType | null>({_id: new ObjectId(req.authUser._id)})
 
@@ -125,6 +168,8 @@ export const fetchCurrentAuth = async (req: Request, res: Response, next: NextFu
 }
 
 
+
+// handle google login
 export const responseGoogleLogin = (req: Request, res: Response) => {
     if (req.user) {
         let {_id, email, role} = req.user as UserType
