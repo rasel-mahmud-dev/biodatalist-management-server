@@ -10,3 +10,4 @@ export interface JWT_PAYLOAD{
     email: string
     role: Role
 }
+

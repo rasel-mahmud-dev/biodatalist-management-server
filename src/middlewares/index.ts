@@ -22,7 +22,7 @@ export async function auth(req: Request, res: Response, next: NextFunction) {
 
 export  function permission(...roles: Role[]) {
     return function (req: Request, res: Response, next: NextFunction) {
-        if (roles.includes(req.user.role)) {
+        if (roles.includes(req.authUser.role)) {
             next()
         } else {
             next("You are not permitted this action")

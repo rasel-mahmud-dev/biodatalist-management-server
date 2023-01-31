@@ -74,6 +74,19 @@ class Common {
         })
     }
 
+    static insert<T>(document: Document) {
+        return new Promise<T>(async (resolve, reject) => {
+            let {collectionName} = this
+            try {
+                let collection = await Common.getCollection(collectionName)
+                let doc = await collection.insertOne(document)
+                resolve(doc as T)
+            } catch (ex) {
+                reject(ex as T)
+            }
+        })
+    }
+
     static findOne<T>(filter: Filter<Document>) {
         return new Promise<T>(async (resolve, reject) => {
             let {collectionName} = this

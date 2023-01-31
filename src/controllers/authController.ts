@@ -6,22 +6,22 @@ import {generateToken} from "../services/jwt";
 import {Role} from "../types";
 import {ObjectId} from "mongodb";
 
-export const login = async (req: Request, res: Response, next: NextFunction) =>{
+export const login = async (req: Request, res: Response, next: NextFunction) => {
 
-    try{
+    try {
         let {password, email} = req.body
         const user = await User.findOne<UserType | null>({email})
 
         // check if user exist or not
         // if not then send error message
-        if(!user) return res.status(404).json({message: "This user not registered yet"})
+        if (!user) return res.status(404).json({message: "This user not registered yet"})
 
 
         // now check password
         let isPasswordMatch = await comparePassword(password, user.password)
-       
 
-        if(!isPasswordMatch){
+
+        if (!isPasswordMatch) {
             return res.status(409).json({message: "Your password is wrong"})
         }
 
@@ -39,23 +39,23 @@ export const login = async (req: Request, res: Response, next: NextFunction) =>{
         })
 
 
-    } catch (ex){
+    } catch (ex) {
         next(ex)
     }
 
 }
 
-export const registration = async (req: Request, res: Response, next: NextFunction) =>{
+export const registration = async (req: Request, res: Response, next: NextFunction) => {
 
-    try{
-        const {email, password, username, avatar } = req.body
+    try {
+        const {email, password, username, avatar} = req.body
 
         const user = await User.findOne<UserType>({email})
 
 
         // check if user exist or not
         // if exist then send error message
-        if(user) return res.status(404).json({message: "This user registered, Please login"})
+        if (user) return res.status(404).json({message: "This user registered, Please login"})
 
         // create new user
         let newUser = new User({
@@ -72,7 +72,7 @@ export const registration = async (req: Request, res: Response, next: NextFuncti
         newUser.password = hash
 
         let response = await newUser.save<UserType>()
-        if(!response){
+        if (!response) {
             return res.status(500).json({message: "User registration fail"})
         }
 
@@ -89,25 +89,25 @@ export const registration = async (req: Request, res: Response, next: NextFuncti
         })
 
 
-    } catch (ex){
+    } catch (ex) {
         next(ex)
     }
 
 }
 
 
-export const fetchCurrentAuth = async (req: Request, res: Response, next: NextFunction) =>{
+export const fetchCurrentAuth = async (req: Request, res: Response, next: NextFunction) => {
 
-    try{
-        if(!req.user){
+    try {
+        if (!req.user) {
             return res.status(409).json({message: "Please login first"})
         }
 
-        const user = await User.findOne<UserType | null>({_id: new ObjectId(req.user._id)})
+        const user = await User.findOne<UserType | null>({_id: new ObjectId(req.authUser._id)})
 
         // check if user exist or not
         // if not then send error message
-        if(!user) return res.status(404).json({message: "This user not registered yet"})
+        if (!user) return res.status(404).json({message: "This user not registered yet"})
 
 
         // send response to client
@@ -119,9 +119,25 @@ export const fetchCurrentAuth = async (req: Request, res: Response, next: NextFu
             }
         })
 
-
-    } catch (ex){
+    } catch (ex) {
         next(ex)
+    }
+}
+
+
+export const responseGoogleLogin = (req: Request, res: Response) => {
+    if (req.user) {
+        let {_id, email, role} = req.user as UserType
+        if (_id) {
+            const token = generateToken(_id.toString(), email, role)
+
+            // redirect client with token
+            res.redirect((process.env.FRONT_END as string) + `?token=${token}`)
+        }
+
+    } else {
+        // redirect client without token that's indicate login fail
+        res.redirect((process.env.FRONT_END as string))
     }
 }
 

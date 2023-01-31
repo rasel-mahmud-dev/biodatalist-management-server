@@ -19,19 +19,20 @@
 
 ### Biodata
 - _id
-- address: string
 - gender: string
 - maritalStatus: boolean
 - createdAt: Date
 - userId: ObjectID (Reference User Collection)
 - age: number
-- dateOfBrith: Date
+- birthDay: Date
+- bloodGroup: string
 - height: number
 - occupation: string
 - nationality: string
-- divisions,
-- districts,
-- upazilas
+- division,
+- occupation
+- district,
+- upazila
 
 
 

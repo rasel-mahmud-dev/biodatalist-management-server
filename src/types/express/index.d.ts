@@ -1,12 +1,10 @@
-import {JWT_PAYLOAD, Role} from "../index";
+import { Role} from "../index";
 
 
 declare global {
     namespace Express {
-
-
         interface Request {
-            user: {
+            authUser: {
                 _id: string,
                 email: string,
                 role: Role

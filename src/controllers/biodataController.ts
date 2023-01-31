@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import Biodata from "../models/Biodata";
-import BiodataType from "../types/interface/BiodataType";
+import BiodataType, {Address} from "../types/interface/BiodataType";
 import {ObjectId} from "mongodb";
 
 
@@ -8,7 +8,7 @@ export const getCurrentUserBiodata = async (req: Request, res: Response, next: N
 
     try {
 
-        const biodata = await Biodata.findOne<BiodataType>({userId: new ObjectId(req.user._id)})
+        const biodata = await Biodata.findOne<BiodataType>({userId: new ObjectId(req.authUser._id)})
         // send response to client
         res.status(200).json(biodata)
 
@@ -39,55 +39,75 @@ export const udpateBiodata = async (req: Request, res: Response, next: NextFunct
 
     try {
         const {
-            address,
-            gender,
-            dateOfBrith,
-            occupation,
-            divisions,
-            districts,
-            upazilas,
             biodataType,
             birthDay,
             bloodGroup,
-            height,
+            gender,
             maritalStatus,
+            height,
             nationality,
+            occupation,
+            permanentAddress,
+            presentAddress,
+            phone,
+            fatherName,
+            isFatherAlive,
+            educationMethod,
         } = req.body
 
 
         // if not exist biodata then create new one
-        let biodata: BiodataType = {
-            biodataType,
-            birthDay,
-            bloodGroup,
-            address,
-            gender,
-            maritalStatus,
-            userId: new ObjectId(req.user._id),
-            dateOfBrith,
-            height,
-            occupation,
-            nationality,
-            divisions,
-            districts,
-            upazilas,
+        let biodata: {
+            biodataType?: string
+            birthDay?: string
+            bloodGroup?: string
+            gender?: string
+            maritalStatus?: string
+            height?: string
+            occupation?: string
+            nationality?: string
+            permanentAddress?: Address,
+            presentAddress?: Address,
+            userId: ObjectId,
+            createdAt?: Date
+            phone?: string,
+            fatherName?: string,
+            isFatherAlive?: string,
+            educationMethod?: string,
+        } = {
+            userId: new ObjectId(req.authUser._id),
         }
 
+        // all value set before checking because multistep form fields will be sent
+        if(biodataType) biodata.biodataType = biodataType
+        if(birthDay) biodata.birthDay = birthDay
+        if(bloodGroup) biodata.bloodGroup = bloodGroup
+        if(phone) biodata.phone = phone
+        if(fatherName) biodata.fatherName = fatherName
+        if(isFatherAlive) biodata.isFatherAlive = isFatherAlive
+        if(educationMethod) biodata.educationMethod = educationMethod
+        if(gender) biodata.gender = gender
+        if(maritalStatus) biodata.maritalStatus = maritalStatus
+        if(height) biodata.height = height
+        if(occupation) biodata.occupation = occupation
+        if(nationality) biodata.nationality = nationality
+        if(permanentAddress) biodata.permanentAddress = permanentAddress
+        if(presentAddress) biodata.presentAddress = presentAddress
+
         // if new bio data then insert current date time
-        const userBiodata = await Biodata.findOne({userId: new ObjectId(req.user._id)})
+        const userBiodata = await Biodata.findOne({userId: new ObjectId(req.authUser._id)})
         if (!userBiodata) {
             biodata.createdAt = new Date()
         }
 
         // update or insert bio data
-        let doc = await Biodata.findAndUpdate({userId: new ObjectId(req.user._id)}, {
+        let doc = await Biodata.findAndUpdate({userId: new ObjectId(req.authUser._id)}, {
             $set: biodata,
         }, {upsert: true})
 
         if (doc.ok) {
             res.status(201).json({message: "bio data updated"})
         }
-
 
     } catch (ex) {
         next(ex)
