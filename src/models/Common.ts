@@ -4,7 +4,7 @@ import {
     Db,
     Document,
     Filter,
-    FindOneAndUpdateOptions,
+    FindOneAndUpdateOptions, FindOptions,
     ModifyResult,
     UpdateFilter,
     UpdateOptions
@@ -61,12 +61,12 @@ class Common {
         })
     }
 
-    static find<T>(filter?: Filter<Document>) {
+    static find<T>(filter?: Filter<Document>, options?: FindOptions) {
         return new Promise<T>(async (resolve, reject) => {
             let {collectionName} = this
             try {
                 let collection = await Common.getCollection(collectionName)
-                let doc = await collection.find(filter ? filter: {}).toArray()
+                let doc = await collection.find(filter ? filter: {}, options).toArray()
                 resolve(doc as T)
             } catch (ex) {
                 reject(ex as T)

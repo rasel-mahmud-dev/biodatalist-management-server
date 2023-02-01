@@ -47,6 +47,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             return res.status(409).json({message: "Your password is wrong"})
         }
 
+
         // generate token
         let token = generateToken(user._id as string, user.email, user.role)
 

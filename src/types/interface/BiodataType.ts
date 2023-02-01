@@ -25,6 +25,7 @@ interface BiodataType {
     educationMethod?: string
     presentAddress: Address,
     permanentAddress: Address
+    isCompleted?: boolean
 }
 
 export default BiodataType

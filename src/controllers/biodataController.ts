@@ -2,6 +2,7 @@ import {NextFunction, Request, Response} from "express";
 import Biodata from "../models/Biodata";
 import BiodataType, {Address} from "../types/interface/BiodataType";
 import {ObjectId} from "mongodb";
+import isObjectId from "../utils/isObjectId";
 
 
 export const getCurrentUserBiodata = async (req: Request, res: Response, next: NextFunction) => {
@@ -51,6 +52,7 @@ export const udpateBiodata = async (req: Request, res: Response, next: NextFunct
             presentAddress,
             phone,
             fatherName,
+            isCompleted = false,
             isFatherAlive,
             educationMethod,
         } = req.body
@@ -74,8 +76,10 @@ export const udpateBiodata = async (req: Request, res: Response, next: NextFunct
             fatherName?: string,
             isFatherAlive?: string,
             educationMethod?: string,
+            isCompleted?: boolean,
         } = {
             userId: new ObjectId(req.authUser._id),
+            isCompleted,
         }
 
         // all value set before checking because multistep form fields will be sent
@@ -136,9 +140,7 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
             _id?: string | ObjectId
         }
 
-        let filter: FilterDataType = {
-
-        }
+        let filter: FilterDataType = {}
 
         if (maritalStatus) {
             filter.maritalStatus = maritalStatus
@@ -148,8 +150,13 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
         }
 
 
-        if(biodataNo){
-            filter._id = new ObjectId(biodataNo)
+        if (biodataNo) {
+            if (isObjectId(biodataNo)) {
+                filter._id = new ObjectId(biodataNo)
+            } else {
+                // not valid object id, so return empty data
+                return res.status(200).json([])
+            }
         }
 
         const biodata = await Biodata.aggregate<BiodataType>([
@@ -162,13 +169,14 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
                     as: "user"
                 }
             },
-            { $unwind: {path: "$user"} }
+            {$unwind: {path: "$user"}}
         ])
 
         // send response to client
         res.status(200).json(biodata)
 
     } catch (ex) {
+        console.log(ex)
         next(ex)
     }
 }

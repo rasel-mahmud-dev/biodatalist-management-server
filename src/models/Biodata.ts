@@ -17,6 +17,7 @@ class Biodata extends Common implements BiodataType{
     occupation: string
     presentAddress: Address
     permanentAddress: Address
+    isCompleted?: boolean = false
 
     static collectionName = "biodata"
 
@@ -31,6 +32,7 @@ class Biodata extends Common implements BiodataType{
         this.maritalStatus = data.maritalStatus
         this.nationality = data.nationality
         this.occupation = data.occupation
+        this.isCompleted = data.isCompleted
         this.bloodGroup = data.bloodGroup
         this.userId = data.userId
         this.createdAt = new Date()

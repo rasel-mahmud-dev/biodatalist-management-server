@@ -6,7 +6,7 @@ export function generateToken(userId: string, email: string, role: string) : str
     let token = jwt.sign({
             _id: userId,
             email: email,
-            roles: role
+            role: role
         },
         process.env.APP_SECRET as string, {expiresIn: '7d'}
     );
