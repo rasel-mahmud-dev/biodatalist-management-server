@@ -19,6 +19,8 @@ export const getCurrentUserBiodata = async (req: Request, res: Response, next: N
 
 }
 
+
+
 // get all biodata for admin user
 export const getAllBiodata = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -144,13 +146,10 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
         const {
             sort = {field: "createdAt", order: 1},
             biodataNo,
-            address,
-            gender,
+            biodataType,
+            presentAddress,
+            permanentAddress,
             maritalStatus,
-            createdAt,
-            height,
-            occupation,
-            nationality,
             pageNumber = 1,
             perPage = 10,
         } = req.body
@@ -159,17 +158,60 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
             maritalStatus?: string
             occupation?: string
             _id?: string | ObjectId
+            presentAddress?: Address,
+            biodataType?: string,
+            permanentAddress?: Address,
+
+            "permanentAddress.country"?: string
+            "permanentAddress.division"?: string
+            "permanentAddress.district"?: string
+            "permanentAddress.upazila"?: string
+
+            "presentAddress.country"?: string
+            "presentAddress.division"?: string
+            "presentAddress.district"?: string
+            "presentAddress.upazila"?: string
         }
-
-
 
         let filter: FilterDataType = {}
 
         if (maritalStatus) {
             filter.maritalStatus = maritalStatus
         }
-        if (occupation) {
-            filter.occupation = occupation
+
+        if (biodataType) {
+            filter.biodataType = biodataType
+        }
+
+        if(presentAddress){
+            if(presentAddress.country) {
+                filter["permanentAddress.country"] = presentAddress.country
+            }
+            if(presentAddress.division) {
+                filter["permanentAddress.division"] = presentAddress.division
+            }
+            if(presentAddress.district) {
+                filter["permanentAddress.district"] = presentAddress.district
+            }
+            if(presentAddress.upazila) {
+                filter["permanentAddress.upazila"] = presentAddress.upazila
+            }
+        }
+
+
+        if(permanentAddress){
+            if(permanentAddress.country) {
+                filter["permanentAddress.country"] = permanentAddress.country
+            }
+            if(permanentAddress.division) {
+                filter["permanentAddress.division"] = permanentAddress.division
+            }
+            if(permanentAddress.district) {
+                filter["permanentAddress.district"] = permanentAddress.district
+            }
+            if(permanentAddress.upazila) {
+                filter["permanentAddress.upazila"] = permanentAddress.upazila
+            }
         }
 
         // search biodata via no
