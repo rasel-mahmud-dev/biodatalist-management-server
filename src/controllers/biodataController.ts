@@ -3,6 +3,7 @@ import Biodata from "../models/Biodata";
 import BiodataType, {Address} from "../types/interface/BiodataType";
 import {ObjectId} from "mongodb";
 import isObjectId from "../utils/isObjectId";
+import User from "../models/User";
 
 
 export const getCurrentUserBiodata = async (req: Request, res: Response, next: NextFunction) => {
@@ -29,7 +30,7 @@ export const getBiodataDetail = async (req: Request, res: Response, next: NextFu
     }
 
     try {
-        const biodata = await Biodata.aggregate<BiodataType>([
+        const biodata = await Biodata.aggregate<BiodataType[]>([
                 {
                     $match: {_id: new ObjectId(biodataId)}
                 },
@@ -45,12 +46,12 @@ export const getBiodataDetail = async (req: Request, res: Response, next: NextFu
             ]
         )
 
-        if (biodata) {
-            if (biodata.user) {
-                biodata.user.password = ""
+        if (biodata && biodata.length > 0) {
+            if (biodata[0].user) {
+                biodata[0].user.password = ""
             }
             // send response to client
-            res.status(200).json(biodata)
+            res.status(200).json(biodata[0])
         } else {
             next("Biodata not found")
         }
@@ -318,6 +319,72 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
             biodata,
             count: totalItem && totalItem[0] && totalItem[0].count
         })
+
+    } catch (ex) {
+        next(ex)
+    }
+}
+
+
+
+// application stats
+export const getBiodataStats = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        let result: {
+            maleBiodata?: number,
+            fermaleBiodata?: number,
+            maleAndfermaleBiodata?: number,
+            totalUser?: number,
+        } = {}
+
+        // count female biodata
+        let data = await Biodata.aggregate<{count: number}[]>([
+                {$match: {biodataType: "female-biodata"}},
+                {$group: {
+                    _id: 0,
+                    count: { $sum: 1 }
+                }}
+            ]
+        )
+
+        if(data && data.length > 0 && data[0].count){
+            result.fermaleBiodata = data[0].count
+        }
+
+        // count male biodata
+        data= await Biodata.aggregate<{count: number}[]>([
+                {$match: {biodataType: "male-biodata"}},
+                {$group: {
+                        _id: 0,
+                        count: { $sum: 1 }
+                    }}
+            ]
+        )
+
+        if(data && data.length > 0 && data[0].count){
+            result.maleBiodata = data[0].count
+        }
+
+        // count all users
+        data= await User.aggregate<{count: number}[]>([
+                {$group: {
+                        _id: 0,
+                        count: { $sum: 1 }
+                    }}
+            ]
+        )
+
+        if(data && data.length > 0 && data[0].count){
+            result.totalUser = data[0].count
+        }
+
+        if(result.fermaleBiodata && result.maleBiodata){
+            result.maleAndfermaleBiodata = result.fermaleBiodata + result.maleBiodata
+        }
+
+        res.status(200).json(result)
+
 
     } catch (ex) {
         next(ex)
