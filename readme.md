@@ -13,6 +13,7 @@
 ### User
 - _id 
 - username
+- avatar
 - email
 - password
 - createdAt
@@ -29,20 +30,33 @@
 - height: number
 - occupation: string
 - nationality: string
-- division,
-- occupation
-- district,
-- upazila
+- nationality?: string
+- occupation?: string
+- phone?: string
+- fatherName?: string
+- isFatherAlive?: string
+- educationMethod?: string
+- presentAddress?: Address
+- permanentAddress?: Address
+- isCompleted?: string
 
+### Roles
+- CUSTOMER
+- ADMIN  
 
 
 ### Routes 
 
-### Auth Routes
+### Auth Route
 - [GET] api/auth/login
 - [GET] api/auth/registration
 - [GET] api/auth/fetch-current-auth
 
-### Biodata Rotues
+### Biodata Route
 - [GET] api/biodata  => get all public biodatas
 - [POST][PRIVATE] api/biodata  ==> create biodata
+- [GET][ADMIN] api/biodata/all  ==> get all biodata
+
+
+### Users Route 
+- [GET][ADMIN] api/users  ==> get all users

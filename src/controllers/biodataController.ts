@@ -20,6 +20,46 @@ export const getCurrentUserBiodata = async (req: Request, res: Response, next: N
 }
 
 
+export const getBiodataDetail = async (req: Request, res: Response, next: NextFunction) => {
+
+    const {biodataId} = req.params
+
+    if (!isObjectId(biodataId)) {
+        return next("Please provide valid biodata id")
+    }
+
+    try {
+        const biodata = await Biodata.aggregate<BiodataType>([
+                {
+                    $match: {_id: new ObjectId(biodataId)}
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "userId",
+                        foreignField: "_id",
+                        as: "user"
+                    }
+                },
+                {$unwind: {path: "$user"}},
+            ]
+        )
+
+        if (biodata) {
+            if (biodata.user) {
+                biodata.user.password = ""
+            }
+            // send response to client
+            res.status(200).json(biodata)
+        } else {
+            next("Biodata not found")
+        }
+
+    } catch (ex) {
+        next(ex)
+    }
+}
+
 
 // get all biodata for admin user
 export const getAllBiodata = async (req: Request, res: Response, next: NextFunction) => {
@@ -34,7 +74,8 @@ export const getAllBiodata = async (req: Request, res: Response, next: NextFunct
                 }
             },
             {$unwind: {path: "$user"}},
-            {$project: {
+            {
+                $project: {
                     biodataType: 1,
                     occupation: 1,
                     division: 1,
@@ -183,33 +224,33 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
             filter.biodataType = biodataType
         }
 
-        if(presentAddress){
-            if(presentAddress.country) {
+        if (presentAddress) {
+            if (presentAddress.country) {
                 filter["permanentAddress.country"] = presentAddress.country
             }
-            if(presentAddress.division) {
+            if (presentAddress.division) {
                 filter["permanentAddress.division"] = presentAddress.division
             }
-            if(presentAddress.district) {
+            if (presentAddress.district) {
                 filter["permanentAddress.district"] = presentAddress.district
             }
-            if(presentAddress.upazila) {
+            if (presentAddress.upazila) {
                 filter["permanentAddress.upazila"] = presentAddress.upazila
             }
         }
 
 
-        if(permanentAddress){
-            if(permanentAddress.country) {
+        if (permanentAddress) {
+            if (permanentAddress.country) {
                 filter["permanentAddress.country"] = permanentAddress.country
             }
-            if(permanentAddress.division) {
+            if (permanentAddress.division) {
                 filter["permanentAddress.division"] = permanentAddress.division
             }
-            if(permanentAddress.district) {
+            if (permanentAddress.district) {
                 filter["permanentAddress.district"] = permanentAddress.district
             }
-            if(permanentAddress.upazila) {
+            if (permanentAddress.upazila) {
                 filter["permanentAddress.upazila"] = permanentAddress.upazila
             }
         }
@@ -234,7 +275,7 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
         }
 
 
-        let totalItem: {count: number}[] = []
+        let totalItem: { count: number }[] = []
         if (pageNumber == 1) {
             totalItem = await Biodata.aggregate([
                 matchPipe,
@@ -255,7 +296,8 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
             },
             {$unwind: {path: "$user"}},
             sortStage,
-            {$project: {
+            {
+                $project: {
                     biodataType: 1,
                     occupation: 1,
                     division: 1,

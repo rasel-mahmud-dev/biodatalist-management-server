@@ -1,4 +1,5 @@
 import {ObjectId} from "mongodb";
+import UserType from "./UserType";
 
 export interface Address {
     division: string,
@@ -26,6 +27,9 @@ interface BiodataType {
     presentAddress: Address,
     permanentAddress: Address
     isCompleted?: boolean
+
+    // populated field
+    user?: UserType
 }
 
 export default BiodataType

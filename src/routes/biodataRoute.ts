@@ -1,5 +1,11 @@
 import {Router} from "express"
-import {getAllBiodata, filterBiodata, udpateBiodata, getCurrentUserBiodata} from "../controllers/biodataController";
+import {
+    getAllBiodata,
+    filterBiodata,
+    udpateBiodata,
+    getCurrentUserBiodata,
+    getBiodataDetail
+} from "../controllers/biodataController";
 import {auth, permission} from "../middlewares";
 import {Role} from "../types";
 
@@ -8,6 +14,9 @@ const router = Router()
 // get current logged user bio data
 router.get("/biodata", auth, getCurrentUserBiodata)
 
+
+// get biodata detail
+router.get("/biodata/:biodataId",  getBiodataDetail)
 
 // get all user bio data for only admin user
 router.get("/biodata/all", auth, permission(Role.ADMIN), getAllBiodata)
