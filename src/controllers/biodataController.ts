@@ -19,22 +19,40 @@ export const getCurrentUserBiodata = async (req: Request, res: Response, next: N
 
 }
 
-
+// get all biodata for admin user
 export const getAllBiodata = async (req: Request, res: Response, next: NextFunction) => {
-
     try {
-
-        const biodata = await Biodata.find<BiodataType>()
-
+        const biodata = await Biodata.aggregate<BiodataType>([
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "user"
+                }
+            },
+            {$unwind: {path: "$user"}},
+            {$project: {
+                    biodataType: 1,
+                    occupation: 1,
+                    division: 1,
+                    birthDay: 1,
+                    user: {
+                        username: 1,
+                        avatar: 1
+                    }
+                }
+            }
+        ])
         // send response to client
         res.status(200).json(biodata)
-
 
     } catch (ex) {
         next(ex)
     }
 
 }
+
 
 export const udpateBiodata = async (req: Request, res: Response, next: NextFunction) => {
 
@@ -124,6 +142,7 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
 
     try {
         const {
+            sort = {field: "createdAt", order: 1},
             biodataNo,
             address,
             gender,
@@ -132,6 +151,8 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
             height,
             occupation,
             nationality,
+            pageNumber = 1,
+            perPage = 10,
         } = req.body
 
         type FilterDataType = {
@@ -139,6 +160,8 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
             occupation?: string
             _id?: string | ObjectId
         }
+
+
 
         let filter: FilterDataType = {}
 
@@ -149,7 +172,7 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
             filter.occupation = occupation
         }
 
-
+        // search biodata via no
         if (biodataNo) {
             if (isObjectId(biodataNo)) {
                 filter._id = new ObjectId(biodataNo)
@@ -159,8 +182,27 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
             }
         }
 
+        let matchPipe = {
+            $match: filter
+        }
+
+        let sortStage = {}
+        if (sort && sort.field) {
+            sortStage = {$sort: {[sort.field]: sort.order}}
+        }
+
+
+        let totalItem: {count: number}[] = []
+        if (pageNumber == 1) {
+            totalItem = await Biodata.aggregate([
+                matchPipe,
+                {$count: "count"}
+            ])
+        }
+
+
         const biodata = await Biodata.aggregate<BiodataType>([
-            {$match: filter},
+            matchPipe,
             {
                 $lookup: {
                     from: "users",
@@ -169,14 +211,31 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
                     as: "user"
                 }
             },
-            {$unwind: {path: "$user"}}
+            {$unwind: {path: "$user"}},
+            sortStage,
+            {$project: {
+                    biodataType: 1,
+                    occupation: 1,
+                    division: 1,
+                    birthDay: 1,
+                    user: {
+                        username: 1,
+                        avatar: 1
+                    }
+                }
+            },
+            {$skip: (Number(pageNumber) - 1) * Number(perPage)},
+            {$limit: Number(perPage)},
+            sortStage
         ])
 
         // send response to client
-        res.status(200).json(biodata)
+        res.status(200).json({
+            biodata,
+            count: totalItem && totalItem[0] && totalItem[0].count
+        })
 
     } catch (ex) {
-        console.log(ex)
         next(ex)
     }
 }

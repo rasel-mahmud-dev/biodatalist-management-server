@@ -10,7 +10,7 @@ router.get("/biodata", auth, getCurrentUserBiodata)
 
 
 // get all user bio data for only admin user
-router.get("/biodata", auth, permission(Role.ADMIN), getAllBiodata)
+router.get("/biodata/all", auth, permission(Role.ADMIN), getAllBiodata)
 
 
 router.patch("/biodata", auth, udpateBiodata)
