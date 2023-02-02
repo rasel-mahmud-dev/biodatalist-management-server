@@ -1,8 +1,8 @@
 import passport from 'passport'
 import GoogleOAuth2Strategy from 'passport-google-oauth';
 import User from "../models/User";
-import userType from "../types/interface/UserType";
-import UserType from "../types/interface/UserType";
+import userType from "../interfaces/UserType";
+import UserType from "../interfaces/UserType";
 import {Role} from "../types";
 
 

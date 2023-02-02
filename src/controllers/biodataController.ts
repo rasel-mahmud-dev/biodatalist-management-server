@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import Biodata from "../models/Biodata";
-import BiodataType, {Address} from "../types/interface/BiodataType";
+import BiodataType, {Address} from "../interfaces/BiodataType";
 import {ObjectId} from "mongodb";
 import isObjectId from "../utils/isObjectId";
 import User from "../models/User";
@@ -123,7 +123,7 @@ export const udpateBiodata = async (req: Request, res: Response, next: NextFunct
         // if not exist biodata then create new one
         let biodata: {
             biodataType?: string
-            birthDay?: string
+            birthDay?: string | Date
             bloodGroup?: string
             gender?: string
             maritalStatus?: string
@@ -146,7 +146,7 @@ export const udpateBiodata = async (req: Request, res: Response, next: NextFunct
 
         // all value set before checking because multistep form fields will be sent
         if (biodataType) biodata.biodataType = biodataType
-        if (birthDay) biodata.birthDay = birthDay
+        if (birthDay) biodata.birthDay = new Date(birthDay)
         if (bloodGroup) biodata.bloodGroup = bloodGroup
         if (phone) biodata.phone = phone
         if (fatherName) biodata.fatherName = fatherName
@@ -194,6 +194,7 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
             maritalStatus,
             pageNumber = 1,
             perPage = 10,
+            ageRange = undefined
         } = req.body
 
         type FilterDataType = {
@@ -203,7 +204,10 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
             presentAddress?: Address,
             biodataType?: string,
             permanentAddress?: Address,
-
+            birthDay?: {
+                $lte: Date,
+                $gte: Date
+            },
             "permanentAddress.country"?: string
             "permanentAddress.division"?: string
             "permanentAddress.district"?: string
@@ -223,6 +227,15 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
 
         if (biodataType) {
             filter.biodataType = biodataType
+        }
+
+        //  age range
+        if(ageRange && Array.isArray(ageRange) && ageRange.length  === 2){
+            let now = new Date()
+            let startDate = new Date((now.getFullYear() - ageRange[0]).toString())
+            let endDate = new Date((now.getFullYear() - ageRange[1]).toString())
+
+            filter.birthDay  = {$lte: startDate, $gte: endDate}
         }
 
         if (presentAddress) {
@@ -326,61 +339,71 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
 }
 
 
-
 // application stats
 export const getBiodataStats = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
         let result: {
             maleBiodata?: number,
-            fermaleBiodata?: number,
-            maleAndfermaleBiodata?: number,
+            femaleBiodata?: number,
+            maleAndfemaleBiodata?: number,
             totalUser?: number,
-        } = {}
+        } = {
+            maleBiodata: 0,
+            femaleBiodata: 0,
+            maleAndfemaleBiodata: 0,
+            totalUser: 0,
+        }
 
         // count female biodata
-        let data = await Biodata.aggregate<{count: number}[]>([
+        let data = await Biodata.aggregate<{ count: number }[]>([
                 {$match: {biodataType: "female-biodata"}},
-                {$group: {
-                    _id: 0,
-                    count: { $sum: 1 }
-                }}
+                {
+                    $group: {
+                        _id: 0,
+                        count: {$sum: 1}
+                    }
+                }
             ]
         )
 
-        if(data && data.length > 0 && data[0].count){
-            result.fermaleBiodata = data[0].count
+        if (data && data.length > 0 && data[0].count) {
+            result.femaleBiodata = data[0].count
         }
 
         // count male biodata
-        data= await Biodata.aggregate<{count: number}[]>([
+        data = await Biodata.aggregate<{ count: number }[]>([
                 {$match: {biodataType: "male-biodata"}},
-                {$group: {
+                {
+                    $group: {
                         _id: 0,
-                        count: { $sum: 1 }
-                    }}
+                        count: {$sum: 1}
+                    }
+                }
             ]
         )
 
-        if(data && data.length > 0 && data[0].count){
+        if (data && data.length > 0 && data[0].count) {
             result.maleBiodata = data[0].count
         }
 
         // count all users
-        data= await User.aggregate<{count: number}[]>([
-                {$group: {
+        data = await User.aggregate<{ count: number }[]>([
+                {
+                    $group: {
                         _id: 0,
-                        count: { $sum: 1 }
-                    }}
+                        count: {$sum: 1}
+                    }
+                }
             ]
         )
 
-        if(data && data.length > 0 && data[0].count){
+        if (data && data.length > 0 && data[0].count) {
             result.totalUser = data[0].count
         }
 
-        if(result.fermaleBiodata && result.maleBiodata){
-            result.maleAndfermaleBiodata = result.fermaleBiodata + result.maleBiodata
+        if (result.femaleBiodata && result.maleBiodata) {
+            result.maleAndfemaleBiodata = result.femaleBiodata + result.maleBiodata
         }
 
         res.status(200).json(result)

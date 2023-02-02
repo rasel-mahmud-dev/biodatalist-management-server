@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import User from "../models/User";
-import UserType from "../types/interface/UserType";
+import UserType from "../interfaces/UserType";
 import {comparePassword, createHashPassword} from "../services/bcrypt";
 import {generateToken} from "../services/jwt";
 import {Role} from "../types";

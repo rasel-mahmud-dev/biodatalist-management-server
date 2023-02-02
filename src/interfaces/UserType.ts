@@ -1,5 +1,5 @@
 import {ObjectId} from "mongodb";
-import {Role} from "../index";
+import {Role} from "../types";
 
 interface UserType {
     _id?: string | ObjectId

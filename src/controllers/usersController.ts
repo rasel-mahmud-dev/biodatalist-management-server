@@ -1,5 +1,5 @@
 import {NextFunction, Request, Response} from "express";
-import UserType from "../types/interface/UserType";
+import UserType from "../interfaces/UserType";
 import User from "../models/User";
 
 

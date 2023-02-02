@@ -12,7 +12,7 @@ interface BiodataType {
     _id?: string | ObjectId
     userId: string | ObjectId
     biodataType: string,
-    birthDay: string,
+    birthDay: string | Date,
     bloodGroup: string,
     createdAt?: Date
     gender: string,

@@ -1,11 +1,26 @@
 ## BiodataList Management Backend
 
+### Live: https://biodata-management.netlify.app
+### Repo: https://github.com/rasel-mahmud-dev/biodatalist-management-server
+### Client Repo: https://github.com/rasel-mahmud-dev/biodatalist-management-client
+
+
+
+### Packages
+- Typescript
+- Nodejs
+- Expressjs
+- Joi (validator)
+- Jsonwebtoken
+- bcryptjs
+- passport
+- mongodb
+
 
 ## Requirement 
 
 ## Database 
 - Mongodb (Native driver)
-
 
 
 ## Models

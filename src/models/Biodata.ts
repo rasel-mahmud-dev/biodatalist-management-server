@@ -1,4 +1,4 @@
-import BiodataType, {Address} from "../types/interface/BiodataType";
+import BiodataType, {Address} from "../interfaces/BiodataType";
 import {ObjectId} from "mongodb";
 import Common from "./Common";
 
@@ -7,7 +7,7 @@ class Biodata extends Common implements BiodataType{
     _id?: string | ObjectId
     userId: string | ObjectId;
     biodataType: string
-    birthDay: string
+    birthDay: string | Date
     bloodGroup: string
     createdAt: Date
     gender: string

@@ -1,4 +1,4 @@
-import UserType from "../types/interface/UserType";
+import UserType from "../interfaces/UserType";
 import {ObjectId} from "mongodb";
 import Common from "./Common";
 import {Role} from "../types";
