@@ -74,4 +74,12 @@
 
 
 ### Users Route 
-- [GET][ADMIN] api/users  ==> get all users
+- [GET][ADMIN] api/users  ==> get all users 
+
+
+### Preview 
+
+
+![](public/thumbs/localhost_3000_(8)copy.webp)
+
+![](public/thumbs/localhost_3000_(12)copy.webp)

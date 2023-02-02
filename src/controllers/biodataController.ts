@@ -186,7 +186,7 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
 
     try {
         const {
-            sort = {field: "createdAt", order: 1},
+            sort = {field: "createdAt", order: -1},
             biodataNo,
             biodataType,
             presentAddress,
