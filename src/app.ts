@@ -6,6 +6,7 @@ import passport from "passport";
 
 
 import translationMiddleware from "./middlewares/translationMiddleware";
+import CustomError from "./interfaces/CustomError";
 
 // passport config initial...
 import("./services/googleOauth")
@@ -29,25 +30,27 @@ app.use(routes)
 
 app.get("/",  async (req: Request, res: Response) => {
     const response = req.t('greeting');
-    console.log(response)
     res.send(response)
 })
 
 
 // global error route handler
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
     if(process.env.NODE_ENV === "development"){
         console.log(err)
     }
 
-
-    if(typeof err === "string") {
-        res.status(500).json({message: err})
-    } else {
-        res.status(err.status || 500).json({
-            message: err.message || "Internal server error"
-        })
+    let statusCode = 500
+    if(err.statusCode){
+        statusCode = err.statusCode
     }
+    let message = req.t("Internal server error");
+
+    if(typeof err.message === "string") {
+        message = req.t(err.message)
+    }
+
+    res.status(statusCode).json({message})
 })
 
 module.exports = app;

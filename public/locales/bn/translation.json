@@ -1,3 +1,15 @@
 {
-  "greeting": "asdsd¡hola!"
+  "greeting": "হ্যালো!",
+  "Email cannot be an empty": "দয়া করে আপনার ইমেইল টি প্রবেশ করুন",
+  "Please provide valid email": "দয়া করে সঠিক ইমেইল প্রবেশ করুন",
+  "Password is a required": "পাসওয়ার্ড প্রবেশ করুন",
+  "Email is a required": "ইমেইল প্রবেশ করুন",
+  "Username is a required": "ইউসারনাম প্রবেশ করুন",
+  "This email not registered yet": "এই ইমেইল এখনও রেজিস্টার হইনি",
+  "This email already registered, Please login": "এই ইমেইল ইতিমধ্য রেজিস্টার হয়েছে, দয়া করে লগইন করুন",
+  "User registration fail": "রেজিস্ট্রেশন প্রসেস বার্থ হয়েছে",
+  "Please login first": "দয়া করে লগইন করুন",
+  "You are not permitted this action": "আপনার এই অ্যাকশন এর জন্য অনুমতি নেই",
+  "Please provide valid biodata id": "দয়া করে সঠিক biodata আইডী দেন",
+  "Data not found": "ডাটা খুঁজে পাওয়া যায় নি"
 }

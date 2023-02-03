@@ -4,6 +4,7 @@ import BiodataType, {Address} from "../interfaces/BiodataType";
 import {ObjectId} from "mongodb";
 import isObjectId from "../utils/isObjectId";
 import User from "../models/User";
+import errorNext from "../middlewares/errorNext";
 
 
 export const getCurrentUserBiodata = async (req: Request, res: Response, next: NextFunction) => {
@@ -26,7 +27,7 @@ export const getBiodataDetail = async (req: Request, res: Response, next: NextFu
     const {biodataId} = req.params
 
     if (!isObjectId(biodataId)) {
-        return next("Please provide valid biodata id")
+        return errorNext(next, "Please provide valid biodata id", 409)
     }
 
     try {
@@ -53,7 +54,7 @@ export const getBiodataDetail = async (req: Request, res: Response, next: NextFu
             // send response to client
             res.status(200).json(biodata[0])
         } else {
-            next("Biodata not found")
+            return errorNext(next, "Data not found", 404)
         }
 
     } catch (ex) {
