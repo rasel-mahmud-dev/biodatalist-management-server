@@ -11,5 +11,6 @@
   "Please login first": "দয়া করে লগইন করুন",
   "You are not permitted this action": "আপনার এই অ্যাকশন এর জন্য অনুমতি নেই",
   "Please provide valid biodata id": "দয়া করে সঠিক biodata আইডী দেন",
-  "Data not found": "ডাটা খুঁজে পাওয়া যায় নি"
+  "Data not found": "ডাটা খুঁজে পাওয়া যায় নি",
+  "Your password is wrong": "আপনার পাসওয়ার্ড সঠিক হয়নি"
 }

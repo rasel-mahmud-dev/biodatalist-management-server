@@ -13,6 +13,7 @@ import errorNext from "../middlewares/errorNext";
 export const login = async (req: Request, res: Response, next: NextFunction) => {
 
 
+
     const schema = Joi.object({
         email: Joi.string()
             .email({minDomainSegments: 2, tlds: {allow: ['com', 'net']}})

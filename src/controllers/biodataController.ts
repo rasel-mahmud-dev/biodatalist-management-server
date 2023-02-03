@@ -199,9 +199,9 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
         } = req.body
 
         type FilterDataType = {
+            _id?: string | ObjectId
             maritalStatus?: string
             occupation?: string
-            _id?: string | ObjectId
             presentAddress?: Address,
             biodataType?: string,
             permanentAddress?: Address,
@@ -243,13 +243,13 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
             if (presentAddress.country) {
                 filter["permanentAddress.country"] = presentAddress.country
             }
-            if (presentAddress.division) {
+            if (presentAddress.division && presentAddress.division !== "All division") {
                 filter["permanentAddress.division"] = presentAddress.division
             }
-            if (presentAddress.district) {
+            if (presentAddress.district && presentAddress.district !== "All district") {
                 filter["permanentAddress.district"] = presentAddress.district
             }
-            if (presentAddress.upazila) {
+            if (presentAddress.upazila && presentAddress.upazila !== "All upazila")  {
                 filter["permanentAddress.upazila"] = presentAddress.upazila
             }
         }
@@ -259,13 +259,13 @@ export const filterBiodata = async (req: Request, res: Response, next: NextFunct
             if (permanentAddress.country) {
                 filter["permanentAddress.country"] = permanentAddress.country
             }
-            if (permanentAddress.division) {
+            if (permanentAddress.division && permanentAddress.division !== "All division"){
                 filter["permanentAddress.division"] = permanentAddress.division
             }
-            if (permanentAddress.district) {
+            if (permanentAddress.district && permanentAddress.district !== "All district"){
                 filter["permanentAddress.district"] = permanentAddress.district
             }
-            if (permanentAddress.upazila) {
+            if (permanentAddress.upazila && permanentAddress.upazila !== "All upazila")  {
                 filter["permanentAddress.upazila"] = permanentAddress.upazila
             }
         }
